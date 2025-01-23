@@ -1,0 +1,75 @@
+@model MovieKeywordViewModel
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">@Model.MovieTitle</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Dodaj nowe słowo kluczowe</h4>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="Keywords" method="post">
+                                <input type="hidden" asp-for="MovieId" />
+                                
+                                <div class="form-group">
+                                    <label asp-for="NewKeywordName" class="form-label">Słowo kluczowe</label>
+                                    <div class="input-group">
+                                        <input asp-for="NewKeywordName" class="form-control" placeholder="Wprowadź słowo kluczowe..." />
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i> Dodaj
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="NewKeywordName" class="text-danger"></span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h4 class="mb-0"><i class="fas fa-tags"></i> Istniejące słowa kluczowe</h4>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.ExistingKeywords.Any())
+                            {
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var keyword in Model.ExistingKeywords)
+                                    {
+                                        <span class="badge bg-secondary p-2">
+                                            <i class="fas fa-tag"></i> @keyword.KeywordName
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Brak słów kluczowych dla tego filmu.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a asp-controller="ProductionCompanies" asp-action="Movies" 
+                   asp-route-id="@Model.CompanyId" 
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Powrót do listy filmów
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

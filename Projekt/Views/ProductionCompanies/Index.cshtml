@@ -1,0 +1,142 @@
+@model PaginatedList<ProductionCompanyViewModel>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(45deg, #0d6efd, #0dcaf0);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="fas fa-building me-2"></i>Wytwórnie filmowe
+                </h2>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form asp-action="Index" method="get" class="search-form">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search text-primary"></i>
+                            </span>
+                            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" 
+                                   class="form-control" placeholder="Wyszukaj wytwórnię..." />
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Szukaj
+                            </button>
+                            @if (!string.IsNullOrEmpty((string)ViewData["CurrentFilter"]))
+                            {
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Wyczyść
+                                </a>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nazwa wytwórni</th>
+                            <th>Liczba filmów</th>
+                            <th>Suma budżetów</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var company in Model.Items)
+                        {
+                            <tr class="align-middle">
+                                <td>@company.CompanyName</td>
+                                <td>
+                                    <a asp-action="Movies" asp-route-id="@company.CompanyId" 
+                                       class="btn btn-link text-decoration-none">
+                                        <i class="fas fa-film me-1"></i>
+                                        @company.MoviesCount
+                                    </a>
+                                </td>
+                                <td>@company.TotalBudget.ToString("C0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="1" 
+                           asp-route-searchString="@ViewData["CurrentFilter"]">Pierwsza</a>
+                    </li>
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageIndex - 1)"
+                           asp-route-searchString="@ViewData["CurrentFilter"]">Poprzednia</a>
+                    </li>
+                    
+                    @{
+                        const int spread = 2;
+                        var start = Math.Max(1, Model.PageIndex - spread);
+                        var end = Math.Min(Model.TotalPages, Model.PageIndex + spread);
+                    }
+                    
+                    @if (start > 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    
+                    @for (var i = start; i <= end; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">@i</a>
+                        </li>
+                    }
+                    
+                    @if (end < Model.TotalPages)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageIndex + 1)"
+                           asp-route-searchString="@ViewData["CurrentFilter"]">Następna</a>
+                    </li>
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@Model.TotalPages"
+                           asp-route-searchString="@ViewData["CurrentFilter"]">Ostatnia</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<style>
+    .search-form {
+        margin-bottom: 1rem;
+    }
+    
+    .table th {
+        background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+        color: white;
+        border: none;
+    }
+    
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+        transform: scale(1.01);
+    }
+    
+    .btn-link {
+        color: #0d6efd;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-link:hover {
+        color: #0dcaf0;
+        transform: translateY(-2px);
+    }
+</style>

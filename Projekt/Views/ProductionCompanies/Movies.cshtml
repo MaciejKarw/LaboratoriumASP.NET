@@ -1,0 +1,82 @@
+@model PaginatedList<MovieDetailsViewModel>
+
+<h2>Lista filmów</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tytuł</th>
+            <th>Popularność</th>
+            <th>Przychód</th>
+            <th>Czas trwania</th>
+            <th>Ocena</th>
+            <th>Liczba głosów</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var movie in Model.Items)
+        {
+            <tr>
+                <td>@movie.Title</td>
+                <td>@movie.Popularity</td>
+                <td>@movie.Revenue?.ToString("C0")</td>
+                <td>@movie.Runtime min</td>
+                <td>
+                    @for (int i = 0; i < movie.Stars; i++)
+                    {
+                        <i class="fas fa-star text-warning"></i>
+                    }
+                </td>
+                <td>@movie.VoteCount</td>
+                <td>
+                    <a asp-controller="Movies" asp-action="Keywords" 
+                       asp-route-id="@movie.MovieId" class="btn btn-primary">
+                        Dodaj słowo kluczowe
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+            <a class="page-link" asp-action="Movies" asp-route-id="@ViewContext.RouteData.Values["id"]" asp-route-page="1">Pierwsza</a>
+        </li>
+        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+            <a class="page-link" asp-action="Movies" asp-route-id="@ViewContext.RouteData.Values["id"]" asp-route-page="@(Model.PageIndex - 1)">Poprzednia</a>
+        </li>
+        
+        @{
+            const int spread = 2;
+            var start = Math.Max(1, Model.PageIndex - spread);
+            var end = Math.Min(Model.TotalPages, Model.PageIndex + spread);
+        }
+        
+        @if (start > 1)
+        {
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+        }
+        
+        @for (var i = start; i <= end; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="Movies" asp-route-id="@ViewContext.RouteData.Values["id"]" asp-route-page="@i">@i</a>
+            </li>
+        }
+        
+        @if (end < Model.TotalPages)
+        {
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+        }
+        
+        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+            <a class="page-link" asp-action="Movies" asp-route-id="@ViewContext.RouteData.Values["id"]" asp-route-page="@(Model.PageIndex + 1)">Następna</a>
+        </li>
+        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+            <a class="page-link" asp-action="Movies" asp-route-id="@ViewContext.RouteData.Values["id"]" asp-route-page="@Model.TotalPages">Ostatnia</a>
+        </li>
+    </ul>
+</nav>
